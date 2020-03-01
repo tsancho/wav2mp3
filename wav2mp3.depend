@@ -6,3 +6,34 @@
 	<pthread.h>
 	<sys/stat.h>
 
+1583071442 source:c:\users\nacru\documents\proj\wav2mp3\src\mp3processor.cpp
+	"../inc/mp3Processor.h"
+
+1583084397 source:c:\users\nacru\documents\proj\wav2mp3\src\wavprocessor.cpp
+	"../inc/wavProcessor.h"
+	<stdio.h>
+	<string.h>
+
+1583084662 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+	<iostream>
+	<unistd.h>
+	<lame/lame.h>
+	<pthread.h>
+	<sys/stat.h>
+	<malloc.h>
+	"../inc/main.h"
+	"../inc/mp3Processor.h"
+	"../inc/wavProcessor.h"
+
+1583063663 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
+
+1583071558 c:\users\nacru\documents\proj\wav2mp3\inc\mp3processor.h
+	<lame/lame.h>
+	<iostream>
+	<unistd.h>
+
+1583084433 c:\users\nacru\documents\proj\wav2mp3\inc\wavprocessor.h
+	<iostream>
+	<unistd.h>
+	<lame/lame.h>
+
