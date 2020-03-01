@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1582985966 source:c:\users\nacru\documents\proj\wav2mp3\main.cpp
+	<iostream>
+	<unistd.h>
+	<lame/lame.h>
+	<pthread.h>
+	<sys/stat.h>
+
