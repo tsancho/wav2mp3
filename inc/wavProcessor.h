@@ -10,6 +10,13 @@ class wavProcessor
         wavProcessor(FILE *inWavFile);
         virtual ~wavProcessor();
 
+
+        bool initDecoder(lame_t *lameSettings);
+        bool decodeProcess( short int *buf, uint32_t *bufSize);
+
+    protected:
+
+    private:
         struct riff_t
         {
             char chunkID[4];
@@ -43,12 +50,6 @@ class wavProcessor
         };
         wavHeader_t wavhdr;
 
-        bool initDecoder(lame_t *lameSettings);
-        bool decodeProcess(lame_t *lameSettings, short int *buf, uint32_t *bufSize);
-
-    protected:
-
-    private:
         FILE *infile;
         bool extractWAVHeader(FILE *inpwav, wavHeader_t *wavHdr);
         bool initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t *wavHdr);

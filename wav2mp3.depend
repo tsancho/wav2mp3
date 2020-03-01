@@ -6,15 +6,17 @@
 	<pthread.h>
 	<sys/stat.h>
 
-1583071442 source:c:\users\nacru\documents\proj\wav2mp3\src\mp3processor.cpp
+1583096561 source:c:\users\nacru\documents\proj\wav2mp3\src\mp3processor.cpp
 	"../inc/mp3Processor.h"
+	"lame/lame.h"
+	"malloc.h"
 
-1583084397 source:c:\users\nacru\documents\proj\wav2mp3\src\wavprocessor.cpp
+1583096103 source:c:\users\nacru\documents\proj\wav2mp3\src\wavprocessor.cpp
 	"../inc/wavProcessor.h"
 	<stdio.h>
 	<string.h>
 
-1583084662 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+1583096230 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>
@@ -27,12 +29,12 @@
 
 1583063663 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
 
-1583071558 c:\users\nacru\documents\proj\wav2mp3\inc\mp3processor.h
+1583096136 c:\users\nacru\documents\proj\wav2mp3\inc\mp3processor.h
 	<lame/lame.h>
 	<iostream>
 	<unistd.h>
 
-1583084433 c:\users\nacru\documents\proj\wav2mp3\inc\wavprocessor.h
+1583089787 c:\users\nacru\documents\proj\wav2mp3\inc\wavprocessor.h
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>

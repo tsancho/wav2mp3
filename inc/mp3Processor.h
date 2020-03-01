@@ -4,15 +4,16 @@
 #include <iostream>
 #include <unistd.h>
 
+
+
 class mp3Processor
 {
     public:
-        mp3Processor(FILE *infile);
+        mp3Processor();
         virtual ~mp3Processor();
 
-//        unsigned int Getm_Counter() { return m_Counter; }
-//        void Setm_Counter(unsigned int val) { m_Counter = val; }
-        bool encodeProcess(lame_t *lameSettings, FILE *outfile);
+
+        bool encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32_t *wavBufSize, FILE *outMp3);
     protected:
 
     private:

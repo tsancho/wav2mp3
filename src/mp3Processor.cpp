@@ -1,6 +1,14 @@
 #include "../inc/mp3Processor.h"
+#include "lame/lame.h"
+#include "malloc.h"
 
-mp3Processor::mp3Processor(FILE *infile)
+#define MP3_BUF_SIZE 8192
+#define MP3_QUALITY  2
+
+
+using namespace std;
+
+mp3Processor::mp3Processor()
 {
     //ctor
 }
@@ -8,4 +16,34 @@ mp3Processor::mp3Processor(FILE *infile)
 mp3Processor::~mp3Processor()
 {
     //dtor
+}
+
+bool mp3Processor::encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32_t *wavBufSize, FILE *outMp3)
+{
+    int writeSize = 0, read = 0;
+    int channels = lame_get_num_channels(*lameSettings);
+    unsigned char *mp3_buffer = (unsigned char *)malloc(8192);
+        if (*wavBufSize == 0)
+        {
+            writeSize = lame_encode_flush(*lameSettings, mp3_buffer, MP3_BUF_SIZE);
+//            cout << "Hello world!11" << endl;
+        }
+        else
+        {
+            if (channels == 1)
+            {
+                writeSize = lame_encode_buffer(*lameSettings, wavBuf, NULL, *wavBufSize, mp3_buffer, MP3_BUF_SIZE);
+
+            }
+            else
+            {
+                writeSize = lame_encode_buffer_interleaved(*lameSettings, wavBuf, *wavBufSize, mp3_buffer, MP3_BUF_SIZE);
+//                cout << "Hello world!22" << endl;
+                printf("write is %d\n", writeSize);
+                printf("read is %d\n", read);
+            }
+        }
+        fwrite(mp3_buffer, writeSize, 1, outMp3);
+        free(mp3_buffer);
+    return true;
 }

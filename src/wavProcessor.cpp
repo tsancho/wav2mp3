@@ -1,9 +1,12 @@
 #include "../inc/wavProcessor.h"
 #include <stdio.h>
 #include <string.h>
+
 using namespace std;
+
 #define BUFSIZE 8192
 #define PCM_HEADER_LENGTH 44
+
 wavProcessor::wavProcessor(FILE *inWavFile)
 {
     infile = inWavFile;
@@ -88,12 +91,12 @@ bool wavProcessor::initDecoder(lame_t *lameSettings)
 
 }
 
-bool wavProcessor::decodeProcess(lame_t *lameSettings, short int *buf, uint32_t *bufSize)
+bool wavProcessor::decodeProcess( short int *buf, uint32_t *bufSize)
 {
 
     *bufSize = fread(buf, 2*sizeof(short int), BUFSIZE, infile);
     printf("read bufsize is %d\n", *bufSize);
-//    infile.
+//    infile
 
     return true;
 }
