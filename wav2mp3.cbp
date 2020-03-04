@@ -11,8 +11,10 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="C:\Users\nacru\Documents\wavs" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +24,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -36,7 +39,12 @@
 			<Add library="lib/libmp3lame.a" />
 			<Add library="lib/pthreadGC-3.dll" />
 		</Linker>
-		<Unit filename="main.cpp" />
+		<Unit filename="inc/main.h" />
+		<Unit filename="inc/mp3Processor.h" />
+		<Unit filename="inc/wavProcessor.h" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/mp3Processor.cpp" />
+		<Unit filename="src/wavProcessor.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

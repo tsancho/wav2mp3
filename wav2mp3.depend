@@ -16,18 +16,21 @@
 	<stdio.h>
 	<string.h>
 
-1583096230 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+1583355019 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>
 	<pthread.h>
 	<sys/stat.h>
 	<malloc.h>
+	<vector>
+	<io.h>
+	<dirent.h>
 	"../inc/main.h"
 	"../inc/mp3Processor.h"
 	"../inc/wavProcessor.h"
 
-1583063663 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
+1583354148 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
 
 1583096136 c:\users\nacru\documents\proj\wav2mp3\inc\mp3processor.h
 	<lame/lame.h>
