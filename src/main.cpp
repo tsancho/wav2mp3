@@ -12,16 +12,19 @@
 #include "../inc/mp3Processor.h"
 #include "../inc/wavProcessor.h"
 
+const int WAV_SIZE = 8192;
 using namespace std;
 
 
-void *runDecoding(void* arg)
+void *runDecoding(void *arg)
 {
 
     uint32_t read;
+    cout <<"filename: " <<' ' <<(char *)arg << "\n" << endl;
     string wavFileName = (char *) arg;
+
     FILE *wav = fopen(wavFileName.c_str(), "rb");  //source
-    const int WAV_SIZE = 8192;//be carefull with this size, it may cause some problems multiplier 100 causes reboot
+//    const int WAV_SIZE = 8192;//be carefull with this size, it may cause some problems multiplier 100 causes reboot
 //    const int MP3_SIZE = 8192;
     lame_t lame;
     short int *wavBuf = (short int *)malloc(WAV_SIZE*4);
@@ -31,8 +34,9 @@ void *runDecoding(void* arg)
     string mp3FileName=wavFileName.substr(0,wavFileName.find_last_of('.'))+".mp3";
 //    mp3FileName = wavFileName.
     FILE *mp3 = fopen(mp3FileName.c_str(), "wb");  //output
-    printf("wav filename is: %s\n",wavFileName );
-    printf("mp3 filename is: %s\n",mp3FileName );
+
+//    printf("wav filename is: %s\n",wavFileName );
+//    printf("mp3 filename is: %s\n",mp3FileName );
     int nTotalRead=0;
     wavPrc.initDecoder(&lame);
     do
@@ -129,8 +133,11 @@ int main(int argc, char *argv[])
     int rc;
     for(uint32_t t = 0; t < THREAD_NUMBER; t++)
     {
-        printf("Creating thread # %d, file name is: %s \n", t, files1.at(t));
-        rc = pthread_create(&thread[t], NULL, runDecoding, (void *) &files1.at(t));
+        printf("Creating thread # %d \n", t);
+        std::cout << ' ' << files1.at(t)<< "\n";
+        const char *sendfile = files1.at(t).c_str();
+//        runDecoding((void *) files1.at(t).c_str());   //without multithreading works really nice
+        rc = pthread_create(&thread[t], NULL, runDecoding, (void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
     }
 
 
