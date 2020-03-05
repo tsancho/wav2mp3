@@ -11,8 +11,8 @@ class wavProcessor
         virtual ~wavProcessor();
 
 
-        bool initDecoder(lame_t *lameSettings);
-        bool decodeProcess( short int *buf, uint32_t *bufSize);
+        bool initDecoder(lame_t *lameSettings, FILE *inWavFile);
+        bool decodeProcess( short int *buf, uint32_t *bufSize, FILE *inWavFile);
 
     protected:
 

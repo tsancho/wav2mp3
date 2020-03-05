@@ -9,7 +9,7 @@ using namespace std;
 
 wavProcessor::wavProcessor(FILE *inWavFile)
 {
-    infile = inWavFile;
+//    infile = inWavFile;
 //    lame_t lameSettings;
 //    initDecoder(&lameSettings, inWavFile);
     //ctor
@@ -23,44 +23,44 @@ wavProcessor::~wavProcessor()
 
 bool wavProcessor::extractWAVHeader(FILE *inWavFile, wavHeader_t *wavHdr)
 {
-    char arr[PCM_HEADER_LENGTH];
-    auto ret = 0;
+    char *arr = (char *)malloc(PCM_HEADER_LENGTH);
+//    auto ret = 0;
     if(inWavFile == NULL)
     {
         cout << "Error! input file does not exist!" << endl;
         return false;
     }
-    ret = fread(arr, sizeof(char), sizeof(wavHeader_t), inWavFile);
-    if( ret == 0)
+
+    if( !fread(arr, sizeof(char), sizeof(wavHeader_t), inWavFile))
     {
         cout << "Error! file header cannot be read! " << endl;
         return false;
     }
 
 //    hdr = (header_t *)arr;
-    printf("size of header %d\n", sizeof(wavHeader_t));
+//    printf("size of header %d\n", sizeof(wavHeader_t));
     memcpy((char *)wavHdr, arr, sizeof(wavHeader_t));
     if(strcmp(wavHdr->dataHeader.subChunk2ID,"data"))
         cout << "data header is ok!\n" << endl;
     else
         cout << "data header is not ok!\n" << endl;
-    for(auto val = 0; val < sizeof(wavHeader_t); val++)
-        printf("\\x%.2x", arr[val]);
-    cout << "\n" << endl;
-    if(wavHdr->dataHeader.subChunk2Size == 0)
-        cout << "data header is not ok!\n" << endl;
-    printf("channels number is: %d \n", wavHdr->format.numChannels);
-    printf("sample rate is: %d \n", wavHdr->format.sampleRate);
-    printf("subChunk1Size is: %d \n", wavHdr->format.subChunk1Size);
-    printf("blockAlign is: %d \n", wavHdr->format.blockAlign);
-    printf("byteRate is: %d \n", wavHdr->format.byteRate);
-    printf("audioFormat is: %d \n", wavHdr->format.audioFormat);
-    printf("bitsPerSample is: %d \n", wavHdr->format.bitsPerSample);
-
-    printf("data size is: %d \n", wavHdr->dataHeader.subChunk2Size);
-    for(auto i = 0; i < sizeof(wavHdr->dataHeader.subChunk2ID); i++)
-        printf("\\x%.2x", wavHdr->dataHeader.subChunk2ID[i]);
-    cout << "\n" << endl;
+//    for(auto val = 0; val < sizeof(wavHeader_t); val++)
+//        printf("\\x%.2x", arr[val]);
+//    cout << "\n" << endl;
+//    if(wavHdr->dataHeader.subChunk2Size == 0)
+//        cout << "data header is not ok!\n" << endl;
+//    printf("channels number is: %d \n", wavHdr->format.numChannels);
+//    printf("sample rate is: %d \n", wavHdr->format.sampleRate);
+//    printf("subChunk1Size is: %d \n", wavHdr->format.subChunk1Size);
+//    printf("blockAlign is: %d \n", wavHdr->format.blockAlign);
+//    printf("byteRate is: %d \n", wavHdr->format.byteRate);
+//    printf("audioFormat is: %d \n", wavHdr->format.audioFormat);
+//    printf("bitsPerSample is: %d \n", wavHdr->format.bitsPerSample);
+//
+//    printf("data size is: %d \n", wavHdr->dataHeader.subChunk2Size);
+//    for(auto i = 0; i < sizeof(wavHdr->dataHeader.subChunk2ID); i++)
+//        printf("\\x%.2x", wavHdr->dataHeader.subChunk2ID[i]);
+//    cout << "\n" << endl;
 
 //    auto val = 0;
 //    while( val < sizeof(header_t))
@@ -83,19 +83,20 @@ bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t
     return true;
 }
 
-bool wavProcessor::initDecoder(lame_t *lameSettings)
+bool wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile)
 {
-    if(!extractWAVHeader(infile, &wavhdr))
+    cout << "wtf!!\n" << endl;
+    if(!extractWAVHeader(inWavFile, &wavhdr))
         cout << "wtf!\n" << endl;
     initPopulateLameSettingsStr(lameSettings, &wavhdr);
 
 }
 
-bool wavProcessor::decodeProcess( short int *buf, uint32_t *bufSize)
+bool wavProcessor::decodeProcess( short int *buf, uint32_t *bufSize, FILE *inWavFile)
 {
 
-    *bufSize = fread(buf, 2*sizeof(short int), BUFSIZE, infile);
-    printf("read bufsize is %d\n", *bufSize);
+    *bufSize = fread(buf, 2*sizeof(short int), BUFSIZE, inWavFile);
+//    printf("read bufsize is %d\n", *bufSize);
 //    infile
 
     return true;

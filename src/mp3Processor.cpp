@@ -39,8 +39,8 @@ bool mp3Processor::encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32
             {
                 writeSize = lame_encode_buffer_interleaved(*lameSettings, wavBuf, *wavBufSize, mp3_buffer, MP3_BUF_SIZE);
 //                cout << "Hello world!22" << endl;
-                printf("write is %d\n", writeSize);
-                printf("read is %d\n", read);
+//                printf("write is %d\n", writeSize);
+//                printf("read is %d\n", read);
             }
         }
         fwrite(mp3_buffer, writeSize, 1, outMp3);
