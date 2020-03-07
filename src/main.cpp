@@ -17,8 +17,9 @@ using namespace std;
 
 struct wrapStruct_t
 {
-    string filename;
     fileConverter *fc;
+    string *filename;
+
 };
 
 fileConverter::fileConverter()
@@ -33,7 +34,7 @@ fileConverter::~fileConverter()
 void  *fileConverter::runConverter(void *arg)
 {
     uint32_t read;
-    string wavFileName = (char *) arg;
+    string wavFileName = *((string *) arg);
 
 
     cout <<"filename: " <<' ' << wavFileName << "\n" << endl;
@@ -82,14 +83,16 @@ void  *fileConverter::runConverter(void *arg)
 
 void *converterWrap(void *object)
 {
-    cout << "in the wrap \n" << endl;
-//    const char *fn = ((wrapStruct_t *)object)->filename.c_str();
+    cout << "in the wrap " << endl;
+    string *filen = (string *)((wrapStruct_t *)object)->filename;
+    cout << "in filename " << ' ' << filen << ' ' <<((wrapStruct_t *)object)->filename->c_str() << endl;
+
 //    ((wrapStruct_t *)object)->fc->runConverter((void *)fn);
-    ((fileConverter *)object)->runConverter((void *)"file_example_WAV_1MG.wav");
+    ((fileConverter *)object)->runConverter((void *)filen);
 //    fileConverter::runConverter(arg);
 //     fc;
 //    fc.runConverter(arg);
-//    return NULL;
+    return NULL;
 
 }
 
@@ -169,29 +172,37 @@ int main(int argc, char *argv[])
     std::cout << ' ' << files1.size()<< "\n";
     int rc;
     std::vector<fileConverter*> threads;
-    wrapStruct_t *wrapStruct = (wrapStruct_t *)malloc(sizeof(wrapStruct_t));
     for(uint32_t t = 0; t < THREAD_NUMBER; t++)
     {
         printf("Creating thread # %d \n", t);
+                const char *sendfile = files1.at(t).c_str();
+
+        wrapStruct_t wrapStruct;// =  (wrapStruct_t *)malloc(sizeof(wrapStruct_t));
+//        wrapStruct->fc = (fileConverter *)malloc(sizeof(fileConverter));
+//        wrapStruct->filename = (string *)malloc(sizeof("file_example_WAV_10MG.wav"));
         threads.push_back(new fileConverter());
 //        fileConverter fc;
 //        threads.insert(threads.at(t), new fileConverter::fileConverter());
         std::cout << ' ' << files1.at(t)<< "\n";
-        const char *sendfile = files1.at(t).c_str();
 
-//        wrapStruct->fc = threads.at(t);
+        wrapStruct.fc = threads.at(t);
 //
-//        wrapStruct->filename = files1.at(t);
+        wrapStruct.filename =  &files1.at(t);//"file_example_WAV_10MG.wav";//
+//        std::cout << ' ' << wrapStruct->fc <<endl;
+//        std::cout << ' ' << threads.at(t) <<endl;
+//         std::cout << ' ' << files1.at(t) <<endl;
+//        std::cout << "warning!!\n" << endl;
 
 //        fc.runConverter( (void *)files1.at(t).c_str());   //without multithreading works really nice
 //        converterWrap(threads.at(t));
-        rc = pthread_create(&thread[t], NULL, &converterWrap, (void *)&threads.at(t));//(void *)wrapStruct);////(void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
+        rc = pthread_create(&thread[t], NULL, &converterWrap,(void *)&wrapStruct); //(void *)threads.at(t));////(void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
         if(!rc)
             std::cout << "warning!\n" << endl;
         std::cout << "warning!!\n" << endl;
-
+//            free(wrapStruct);
     }
-    free(wrapStruct);
+    for(auto t = 0; t < THREAD_NUMBER; t++)
+        pthread_join(thread[t], NULL);
 
 //    printf("total cycles done %d\n", nTotalRead);
     return 0;
