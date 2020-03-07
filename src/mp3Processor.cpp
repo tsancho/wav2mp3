@@ -20,7 +20,7 @@ mp3Processor::~mp3Processor()
 
 bool mp3Processor::encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32_t *wavBufSize, FILE *outMp3)
 {
-    int writeSize = 0, read = 0;
+    int writeSize = 0;
     int channels = lame_get_num_channels(*lameSettings);
     unsigned char *mp3_buffer = (unsigned char *)malloc(8192);
         if (*wavBufSize == 0)

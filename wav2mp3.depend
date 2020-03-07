@@ -6,17 +6,17 @@
 	<pthread.h>
 	<sys/stat.h>
 
-1583444765 source:c:\users\nacru\documents\proj\wav2mp3\src\mp3processor.cpp
+1583608484 source:c:\users\nacru\documents\proj\wav2mp3\src\mp3processor.cpp
 	"../inc/mp3Processor.h"
 	"lame/lame.h"
 	"malloc.h"
 
-1583531224 source:c:\users\nacru\documents\proj\wav2mp3\src\wavprocessor.cpp
+1583608453 source:c:\users\nacru\documents\proj\wav2mp3\src\wavprocessor.cpp
 	"../inc/wavProcessor.h"
 	<stdio.h>
 	<string.h>
 
-1583575015 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+1583609415 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>
