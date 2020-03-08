@@ -15,8 +15,28 @@
 
 const int WAV_SIZE = 8192;
 using namespace std;
-
+std::vector <string> files1;
+int globalFileIndex;
+pthread_mutex_t lock;
 //using namespace thread;
+int getNextFileName( string *filename  )
+{
+    int retval = 0;
+    pthread_mutex_lock(&lock);
+    if(globalFileIndex < files1.size())
+    {
+        *filename = files1.at(globalFileIndex);
+        retval = 0;
+    }
+    else
+    {
+        *filename = "";
+        retval = -1;
+    }
+    globalFileIndex++;
+    pthread_mutex_unlock(&lock);
+    return retval;
+}
 struct wrapStruct_t
 {
     fileConverter *fc;
@@ -33,40 +53,55 @@ fileConverter::~fileConverter()
 {
     //dtor
 }
+
 void  *fileConverter::runConverter(void *arg)
 {
     uint32_t read;
-    string wavFileName = *((string *) arg);
-
-    cout <<"filename: " <<' ' << wavFileName << "\n" << endl;
-
-    FILE *wav = fopen(wavFileName.c_str(), "rb");  //source
-    if(wav == NULL)
-        cout <<"filename!!!: " <<' ' << wavFileName << "\n" << endl;
-
-    lame_t lame;
-    short int *wavBuf = (short int *)malloc(WAV_SIZE*4);
-
-    wavProcessor wavPrc(wav);
-    mp3Processor mp3Prc;
-    wavFileName = wavFileName.substr(0,wavFileName.find_last_of('.'));
-    string mp3FileName =wavFileName +".mp3";
-
-    FILE *mp3 = fopen(mp3FileName.c_str(), "wb");  //output
-    wavPrc.initDecoder(&lame, wav);
-
-    do
+    bool firstCycle = true;
+    string wavFileName;
+    while(1)
     {
-        wavPrc.decodeProcess(wavBuf, &read, wav);
-        mp3Prc.encodeProcess(&lame, wavBuf, &read, mp3);
+        if(firstCycle)
+            wavFileName = *((string *) arg);
+        else
+        {
+            if(getNextFileName(&wavFileName) == -1)
+                return NULL;
+        }
+        firstCycle = false;
+        cout <<"converting file: " <<' ' << wavFileName << "\n" << endl;
+
+        FILE *wav = fopen(wavFileName.c_str(), "rb");  //source
+        if(wav == NULL)
+            cout <<"file is unavailable: " <<' ' << wavFileName << "\n" << endl;
+
+        lame_t lame;
+        short int *wavBuf = (short int *)malloc(WAV_SIZE*4);
+
+        wavProcessor wavPrc(wav);
+        mp3Processor mp3Prc;
+        wavFileName = wavFileName.substr(0,wavFileName.find_last_of('.'));
+        string mp3FileName =wavFileName +".mp3";
+
+        FILE *mp3 = fopen(mp3FileName.c_str(), "wb");  //output
+        wavPrc.initDecoder(&lame, wav);
+
+        do
+        {
+            wavPrc.decodeProcess(wavBuf, &read, wav);
+            mp3Prc.encodeProcess(&lame, wavBuf, &read, mp3);
+        }
+        while(read != 0);
+        free(wavBuf);
+        lame_close(lame);
+        fclose(mp3);
+        fclose(wav);
+        cout << "successfully converted file: " << mp3FileName.c_str() << endl;
     }
-    while(read != 0);
-    free(wavBuf);
-    lame_close(lame);
-    fclose(mp3);
-    fclose(wav);
     return NULL;
 }
+
+
 
 void *converterWrap(void *object)
 {
@@ -136,8 +171,8 @@ int getFilesList(char *folderName, std::vector <string> *names)
 int main(int argc, char *argv[])
 {
 
-    pthread_t thread[THREAD_NUMBER];
     int numCPU = 1, systemtype = 0;
+    globalFileIndex = 0;
     #if __WIN32__
     {
         SYSTEM_INFO sysinfo;
@@ -149,10 +184,14 @@ int main(int argc, char *argv[])
         numCPU = sysconf(_SC_NPROCESSORS_ONLN);
         systemtype = 2;
     #endif
-
+    if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        printf("\n mutex init failed\n");
+        return 1;
+    }
+    pthread_t thread[THREAD_NUMBER];
     std::cout << "num CPUs"<< ' ' <<numCPU << "system type is" << systemtype <<std::endl;
     cout << argv[1] << endl;
-    std::vector <string> files1;
     int sz = getFilesList(argv[1],&files1);
     chdir(argv[1]);
     printf("files1 are read %d\n", sz);
@@ -171,14 +210,18 @@ int main(int argc, char *argv[])
 
         wrapStruct.fc = threads.at(t);
 //
-        wrapStruct.filename =  &files1.at(t);//"file_example_WAV_10MG.wav";//
+        if(getNextFileName(wrapStruct.filename))//"file_example_WAV_10MG.wav";//
+            break;
 
         rc = pthread_create(&thread[t], NULL, &converterWrap,(void *)&wrapStruct); //(void *)threads.at(t));////(void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
         if(rc)
+        {
             std::cout << "warning! thread can't be created with error %d \n" << rc << endl;
+            return rc;
+        }
     }
-    for(auto t = 0; t < THREAD_NUMBER; t++)
-        pthread_join(thread[t], NULL);
+        for(auto t = 0; t < THREAD_NUMBER; t++)
+            pthread_join(thread[t], NULL);
 
     return 0;
 }

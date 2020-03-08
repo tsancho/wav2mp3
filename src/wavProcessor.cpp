@@ -85,7 +85,6 @@ bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t
 
 bool wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile)
 {
-    cout << "wtf!!\n" << endl;
     if(!extractWAVHeader(inWavFile, &wavhdr))
         cout << "wtf!\n" << endl;
     initPopulateLameSettingsStr(lameSettings, &wavhdr);
