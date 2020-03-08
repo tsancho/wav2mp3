@@ -16,7 +16,7 @@
 	<stdio.h>
 	<string.h>
 
-1583663981 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+1583684315 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>
@@ -30,7 +30,7 @@
 	"../inc/mp3Processor.h"
 	"../inc/wavProcessor.h"
 
-1583663974 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
+1583684381 c:\users\nacru\documents\proj\wav2mp3\inc\main.h
 
 1583096136 c:\users\nacru\documents\proj\wav2mp3\inc\mp3processor.h
 	<lame/lame.h>

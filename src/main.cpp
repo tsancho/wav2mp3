@@ -15,8 +15,8 @@
 
 const int WAV_SIZE = 8192;
 using namespace std;
-std::vector <string> files1;
-int globalFileIndex;
+std::vector <std::string> files1;
+unsigned int globalFileIndex;
 pthread_mutex_t lock;
 //using namespace thread;
 int getNextFileName( string *filename  )
@@ -40,7 +40,7 @@ int getNextFileName( string *filename  )
 struct wrapStruct_t
 {
     fileConverter *fc;
-    string *filename;
+    std::string filename;
 
 };
 
@@ -105,8 +105,8 @@ void  *fileConverter::runConverter(void *arg)
 
 void *converterWrap(void *object)
 {
-    string *filen = (string *)((wrapStruct_t *)object)->filename;
-    ((fileConverter *)object)->runConverter((void *)filen);
+    string filen = (string )((wrapStruct_t *)object)->filename;
+    ((fileConverter *)object)->runConverter((void *)&filen);
     return NULL;
 }
 
@@ -189,7 +189,8 @@ int main(int argc, char *argv[])
         printf("\n mutex init failed\n");
         return 1;
     }
-    pthread_t thread[THREAD_NUMBER];
+    int threadNumber = numCPU;
+    pthread_t thread[threadNumber];
     std::cout << "num CPUs"<< ' ' <<numCPU << "system type is" << systemtype <<std::endl;
     cout << argv[1] << endl;
     int sz = getFilesList(argv[1],&files1);
@@ -198,11 +199,13 @@ int main(int argc, char *argv[])
     std::cout << ' ' << files1.size()<< "\n";
     int rc;
     std::vector<fileConverter*> threads;
-    for(uint32_t t = 0; t < THREAD_NUMBER; t++)
+     wrapStruct_t wrapStruct;
+//     wrapStruct.filename = (string *)malloc(sizeof(string));
+    for(auto t = 0; t < threadNumber; t++)
     {
         printf("Creating thread # %d \n", t);
 
-        wrapStruct_t wrapStruct;// =  (wrapStruct_t *)malloc(sizeof(wrapStruct_t));
+       // =  (wrapStruct_t *)malloc(sizeof(wrapStruct_t));
 
         threads.push_back(new fileConverter());
 
@@ -210,17 +213,18 @@ int main(int argc, char *argv[])
 
         wrapStruct.fc = threads.at(t);
 //
-        if(getNextFileName(wrapStruct.filename))//"file_example_WAV_10MG.wav";//
+        if(getNextFileName(&(wrapStruct.filename)))//"file_example_WAV_10MG.wav";//
             break;
 
         rc = pthread_create(&thread[t], NULL, &converterWrap,(void *)&wrapStruct); //(void *)threads.at(t));////(void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
         if(rc)
         {
-            std::cout << "warning! thread can't be created with error %d \n" << rc << endl;
+            std::cout << "error! thread can't be created with error %d \n" << rc << endl;
             return rc;
         }
     }
-        for(auto t = 0; t < THREAD_NUMBER; t++)
+//        free(wrapStruct.filename);
+        for(auto t = 0; t < threadNumber; t++)
             pthread_join(thread[t], NULL);
 
     return 0;
