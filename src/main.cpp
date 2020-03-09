@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <malloc.h>
 #include <vector>
-#include <io.h>
+//#include <io.h>
 #include <dirent.h>
 
 #include "../inc/main.h"
@@ -171,18 +171,19 @@ int getFilesList(char *folderName, std::vector <string> *names)
 int main(int argc, char *argv[])
 {
 
-    int numCPU = 1, systemtype = 0;
+    int numCPU = 1;
+    string systemtype = "unknown";
     globalFileIndex = 0;
-    #if __WIN32__
+    #if __WIN32__ or __WIN32 or __WIN64
     {
         SYSTEM_INFO sysinfo;
         GetSystemInfo(&sysinfo);
         numCPU = sysinfo.dwNumberOfProcessors;
-        systemtype = 1;
+        systemtype = "windows";
     }
-    #elif __UNIX__
+    #elif unix or __unix or __unix__ or __linux__
         numCPU = sysconf(_SC_NPROCESSORS_ONLN);
-        systemtype = 2;
+        systemtype = "unix";
     #endif
     if (pthread_mutex_init(&lock, NULL) != 0)
     {

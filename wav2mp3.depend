@@ -16,7 +16,7 @@
 	<stdio.h>
 	<string.h>
 
-1583684860 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
+1583754299 source:c:\users\nacru\documents\proj\wav2mp3\src\main.cpp
 	<iostream>
 	<unistd.h>
 	<lame/lame.h>
@@ -24,7 +24,6 @@
 	<sys/stat.h>
 	<malloc.h>
 	<vector>
-	<io.h>
 	<dirent.h>
 	"../inc/main.h"
 	"../inc/mp3Processor.h"
