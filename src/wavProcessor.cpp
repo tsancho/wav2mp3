@@ -7,7 +7,7 @@ using namespace std;
 #define BUFSIZE 8192
 #define PCM_HEADER_LENGTH 44
 
-wavProcessor::wavProcessor(FILE *inWavFile)
+wavProcessor::wavProcessor()
 {
 //    infile = inWavFile;
 //    lame_t lameSettings;
@@ -20,6 +20,12 @@ wavProcessor::~wavProcessor()
 
     //dtor
 }
+
+//int wavProcessor::getWavHeader(wavHeader_t *wavHeader)
+//{
+//
+//}
+
 
 bool wavProcessor::extractWAVHeader(FILE *inWavFile, wavHeader_t *wavHdr)
 {
@@ -44,52 +50,47 @@ bool wavProcessor::extractWAVHeader(FILE *inWavFile, wavHeader_t *wavHdr)
         cout << "data header is ok!\n" << endl;
     else
         cout << "data header is not ok!\n" << endl;
-//    for(auto val = 0; val < sizeof(wavHeader_t); val++)
-//        printf("\\x%.2x", arr[val]);
-//    cout << "\n" << endl;
-//    if(wavHdr->dataHeader.subChunk2Size == 0)
-//        cout << "data header is not ok!\n" << endl;
-//    printf("channels number is: %d \n", wavHdr->format.numChannels);
-//    printf("sample rate is: %d \n", wavHdr->format.sampleRate);
-//    printf("subChunk1Size is: %d \n", wavHdr->format.subChunk1Size);
-//    printf("blockAlign is: %d \n", wavHdr->format.blockAlign);
-//    printf("byteRate is: %d \n", wavHdr->format.byteRate);
-//    printf("audioFormat is: %d \n", wavHdr->format.audioFormat);
-//    printf("bitsPerSample is: %d \n", wavHdr->format.bitsPerSample);
-//
-//    printf("data size is: %d \n", wavHdr->dataHeader.subChunk2Size);
-//    for(auto i = 0; i < sizeof(wavHdr->dataHeader.subChunk2ID); i++)
-//        printf("\\x%.2x", wavHdr->dataHeader.subChunk2ID[i]);
-//    cout << "\n" << endl;
 
-//    auto val = 0;
-//    while( val < sizeof(header_t))
+
+    return true;
+}
+
+int wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t wavHdr, int *mp3bufSize)
+{
+//    wavHeader_t wavHdr;
+//    if(getWavHeader(&wavHdr))
 //    {
-//        char tmp = ((char *)hdr)[val];
-//        printf("\\x%.2x", tmp);
-//        val++;
+//        cout << "Error! Unreadable header!\n" << endl;
+//        return -1;
 //    }
-
-    return true;
-}
-
-bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t *wavHdr)
-{
     *lameSettings = lame_init();
-    lame_set_in_samplerate(*lameSettings, wavHdr->format.sampleRate );
-    lame_set_out_samplerate(*lameSettings, wavHdr->format.sampleRate );
+    lame_set_in_samplerate(*lameSettings, wavHdr.format.sampleRate );
+    lame_set_out_samplerate(*lameSettings, wavHdr.format.sampleRate );
     lame_set_VBR(*lameSettings, vbr_default);
-    lame_init_params(*lameSettings);
-    return true;
+    *mp3bufSize = (1.25 * (4096/(wavHdr.format.bitsPerSample/8)) + 7200); // worst-case estimate from lame/API
+    if(lame_init_params(*lameSettings) < 0)//check condition
+    {
+        cout << "Lame init failed!\n" << endl;
+        return -2;
+    }
+    return 0;
 }
 
-bool wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile)
+int wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile)
 {
-    if(!extractWAVHeader(inWavFile, &wavhdr))
+    int mp3bufsize;
+    wavHeader_t *wavHdr;
+    if(!extractWAVHeader(inWavFile, wavHdr))
         cout << "wtf!\n" << endl;
-    initPopulateLameSettingsStr(lameSettings, &wavhdr);
-    return true;
+    if(initPopulateLameSettingsStr(lameSettings, *wavHdr ,&mp3bufsize) < 0)
+    {
+        cout << "init lame settings failed!\n" << endl;
+        return -1;
+    }
+    cout << "bufsize is! " << mp3bufsize<< endl;
 
+    mp3bufsize = 8192;
+    return mp3bufsize;
 }
 
 bool wavProcessor::decodeProcess( short int *buf, uint32_t *bufSize, FILE *inWavFile)
