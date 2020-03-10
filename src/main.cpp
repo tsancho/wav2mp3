@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <malloc.h>
 #include <vector>
-//#include <io.h>
 #include <dirent.h>
 
 #include "../inc/main.h"
@@ -73,12 +72,12 @@ void  *fileConverter::runConverter(void *arg)
 
         FILE *wav = fopen(wavFileName.c_str(), "rb");  //source
         if(wav == NULL)
-            cout <<"file is unavailable: " <<' ' << wavFileName << "\n" << endl;
+            cout <<"file is unavailable: " << wavFileName << "\n" << endl;
 
         lame_t lame;
         short int *wavBuf = (short int *)malloc(WAV_SIZE*4);
 
-        wavProcessor wavPrc(wav);
+        wavProcessor wavPrc;//(wav);
         mp3Processor mp3Prc;
         wavFileName = wavFileName.substr(0,wavFileName.find_last_of('.'));
         string mp3FileName =wavFileName +".mp3";
@@ -110,22 +109,22 @@ void *converterWrap(void *object)
     return NULL;
 }
 
-int getFilesNumber(char *folderName)
-{
-    DIR *dir;
-    struct dirent *ent;
-    int val = 0;
-    if ((dir = opendir (folderName)) != NULL)
-    {
-        while ((ent = readdir (dir)) != NULL)
-        {
-            printf("curval %d\n", val);
-            val++;
-        }
-        closedir (dir);
-    }
-    return val;
-}
+//int getFilesNumber(char *folderName)
+//{
+//    DIR *dir;
+//    struct dirent *ent;
+//    int val = 0;
+//    if ((dir = opendir (folderName)) != NULL)
+//    {
+//        while ((ent = readdir (dir)) != NULL)
+//        {
+//            printf("curval %d\n", val);
+//            val++;
+//        }
+//        closedir (dir);
+//    }
+//    return val;
+//}
 
 int getFilesList(char *folderName, std::vector <string> *names)
 {
@@ -135,7 +134,7 @@ int getFilesList(char *folderName, std::vector <string> *names)
 
     DIR *dir;
     struct dirent *ent;
-    auto val = 0;
+    auto val = 0, wavs = 0;
 
     if ((dir = opendir (folderName)) != NULL)
     {
@@ -149,7 +148,10 @@ int getFilesList(char *folderName, std::vector <string> *names)
             {
                 std::string extension = filename.substr(idx+1);
                 if(extension == "wav")
+                {
                     names->insert(names->end(),ent->d_name);
+                    wavs++;
+                }
 
             }
             else
@@ -163,8 +165,15 @@ int getFilesList(char *folderName, std::vector <string> *names)
     }
     else
     {
-        perror ("Directory is unreachable!");
+        printf ("Directory is unreachable!\n");
+        val = -1;
     }
+    if(!wavs)
+    {
+        printf ("No .WAV files detected in directory!\n");
+        val = -1;
+    }
+
     return val;
 }
 
@@ -192,43 +201,41 @@ int main(int argc, char *argv[])
     }
     int threadNumber = numCPU;
     pthread_t thread[threadNumber];
-    std::cout << "num CPUs"<< ' ' <<numCPU << "system type is" << systemtype <<std::endl;
-    cout << argv[1] << endl;
+    std::cout <<" system type is: " << systemtype << " number of available CPUs is: " << numCPU  <<std::endl;
+    if(chdir(argv[1]))
+    {
+        cout << "Error! WAV storage directory is unreachable: " <<argv[1] << endl;
+        return 2;
+    }
+    else
+        cout << "Entering directory: " <<argv[1] << endl;
     int sz = getFilesList(argv[1],&files1);
-    chdir(argv[1]);
-    printf("files1 are read %d\n", sz);
-    std::cout << ' ' << files1.size()<< "\n";
+    if(sz <= 2)
+    {
+        cout << "Error! Something is wrong with WAV storage directory, probably not enough WAV files? " <<argv[1] << endl;
+        return 3;
+    }
+    cout << ' ' << files1.size()<< "\n";
     int rc;
-    std::vector<fileConverter*> threads;
-     wrapStruct_t wrapStruct;
-//     wrapStruct.filename = (string *)malloc(sizeof(string));
+    vector<fileConverter*> threads;
+    wrapStruct_t wrapStruct;
     for(auto t = 0; t < threadNumber; t++)
     {
         printf("Creating thread # %d \n", t);
-
-       // =  (wrapStruct_t *)malloc(sizeof(wrapStruct_t));
-
         threads.push_back(new fileConverter());
-
         std::cout << ' ' << files1.at(t)<< "\n";
-
         wrapStruct.fc = threads.at(t);
-//
-        if(getNextFileName(&(wrapStruct.filename)))//"file_example_WAV_10MG.wav";//
+        if(getNextFileName(&(wrapStruct.filename)))
             break;
-
-        rc = pthread_create(&thread[t], NULL, &converterWrap,(void *)&wrapStruct); //(void *)threads.at(t));////(void *) files1.at(t).c_str());//"file_example_WAV_1MG.wav");// &files1.at(t));
+        rc = pthread_create(&thread[t], NULL, &converterWrap,(void *)&wrapStruct);
         if(rc)
         {
             std::cout << "error! thread can't be created with error %d \n" << rc << endl;
             return rc;
         }
     }
-//        free(wrapStruct.filename);
-        for(auto t = 0; t < threadNumber; t++)
-            pthread_join(thread[t], NULL);
+    for(auto t = 0; t < threadNumber; t++)
+        pthread_join(thread[t], NULL);
 
     return 0;
 }
-
-

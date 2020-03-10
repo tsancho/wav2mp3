@@ -7,7 +7,7 @@
 class wavProcessor
 {
     public:
-        wavProcessor(FILE *inWavFile);
+        wavProcessor();
         virtual ~wavProcessor();
 
 
