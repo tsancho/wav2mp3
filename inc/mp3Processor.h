@@ -13,7 +13,7 @@ class mp3Processor
         virtual ~mp3Processor();
 
 
-        bool encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32_t *wavBufSize, FILE *outMp3);
+        bool encodeProcess(lame_t *lameSettings, short int *wavBuf, uint32_t wavBufSize, int mp3bufSize, FILE *outMp3);
     protected:
 
     private:

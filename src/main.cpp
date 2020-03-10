@@ -17,7 +17,6 @@ using namespace std;
 std::vector <std::string> files1;
 unsigned int globalFileIndex;
 pthread_mutex_t lock;
-//using namespace thread;
 int getNextFileName( string *filename  )
 {
     int retval = 0;
@@ -55,7 +54,6 @@ fileConverter::~fileConverter()
 
 void  *fileConverter::runConverter(void *arg)
 {
-    uint32_t read;
     bool firstCycle = true;
     string wavFileName;
     while(1)
@@ -81,21 +79,29 @@ void  *fileConverter::runConverter(void *arg)
         mp3Processor mp3Prc;
         wavFileName = wavFileName.substr(0,wavFileName.find_last_of('.'));
         string mp3FileName =wavFileName +".mp3";
-
+        int mp3bufsz = 0;
+        uint32_t readBufSize = 0;
         FILE *mp3 = fopen(mp3FileName.c_str(), "wb");  //output
-        wavPrc.initDecoder(&lame, wav);
-
-        do
+        if(wavPrc.initDecoder(&lame, wav, &mp3bufsz))
         {
-            wavPrc.decodeProcess(wavBuf, &read, wav);
-            mp3Prc.encodeProcess(&lame, wavBuf, &read, mp3);
+            cout << "file conversion aborted: " << mp3FileName.c_str() << endl;
+            fclose(mp3);
+            remove(mp3FileName.c_str());
         }
-        while(read != 0);
+        else
+        {
+            do
+            {
+                wavPrc.decodeProcess(wavBuf, &readBufSize, wav);
+                mp3Prc.encodeProcess(&lame, wavBuf, readBufSize, mp3bufsz, mp3);
+            }
+            while(readBufSize != 0);
+            cout << "successfully converted file: " << mp3FileName.c_str() << endl;
+            fclose(mp3);
+        }
         free(wavBuf);
         lame_close(lame);
-        fclose(mp3);
         fclose(wav);
-        cout << "successfully converted file: " << mp3FileName.c_str() << endl;
     }
     return NULL;
 }
@@ -108,23 +114,6 @@ void *converterWrap(void *object)
     ((fileConverter *)object)->runConverter((void *)&filen);
     return NULL;
 }
-
-//int getFilesNumber(char *folderName)
-//{
-//    DIR *dir;
-//    struct dirent *ent;
-//    int val = 0;
-//    if ((dir = opendir (folderName)) != NULL)
-//    {
-//        while ((ent = readdir (dir)) != NULL)
-//        {
-//            printf("curval %d\n", val);
-//            val++;
-//        }
-//        closedir (dir);
-//    }
-//    return val;
-//}
 
 int getFilesList(char *folderName, std::vector <string> *names)
 {

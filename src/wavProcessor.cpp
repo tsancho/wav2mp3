@@ -21,7 +21,6 @@ wavProcessor::~wavProcessor()
 bool wavProcessor::extractWAVHeader(FILE *inWavFile, wavHeader_t *wavHdr)
 {
     char *arr = (char *)malloc(PCM_HEADER_LENGTH);
-//    auto ret = 0;
     if(inWavFile == NULL)
     {
         cout << "Error! input file does not exist!" << endl;
@@ -36,17 +35,22 @@ bool wavProcessor::extractWAVHeader(FILE *inWavFile, wavHeader_t *wavHdr)
 
 
     memcpy((char *)wavHdr, arr, sizeof(wavHeader_t));
-    if(strcmp(wavHdr->dataHeader.subChunk2ID,"data"))
-        cout << "data header is ok!\n" << endl;
+    if(strstr(wavHdr->dataHeader.subChunk2ID,"data"))//checking if file is PCM-type and consist "data" section in the header
+        cout << "data header is ok! " <<  endl;
     else
-        cout << "data header is not ok!\n" << endl;
+    {
+        cout << "data header is wrong! " << endl;
+        return false;
+    }
 
     return true;
 }
 
-bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t *wavHdr)
+bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t *wavHdr, int *mp3bufSize)
 {
     *lameSettings = lame_init();
+    *mp3bufSize = (1.25 * (4096/(wavHdr->format.bitsPerSample/8)) + 7200); // got from LAME lib
+    cout << "mp3bufsize is: " << *mp3bufSize << endl;
     lame_set_in_samplerate(*lameSettings, wavHdr->format.sampleRate );
     lame_set_out_samplerate(*lameSettings, wavHdr->format.sampleRate );
     lame_set_VBR(*lameSettings, vbr_default);
@@ -55,12 +59,15 @@ bool wavProcessor::initPopulateLameSettingsStr(lame_t *lameSettings, wavHeader_t
     return true;
 }
 
-bool wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile)
+bool wavProcessor::initDecoder(lame_t *lameSettings, FILE *inWavFile, int *mp3bufSize)
 {
     if(!extractWAVHeader(inWavFile, &wavhdr))
-        cout << "wtf!\n" << endl;
-    initPopulateLameSettingsStr(lameSettings, &wavhdr);
-    return true;
+    {
+        cout << "Error! file header cannot be read! " << endl;
+        return true;
+    }
+    initPopulateLameSettingsStr(lameSettings, &wavhdr, mp3bufSize);
+    return false;
 
 }
 
@@ -68,8 +75,5 @@ bool wavProcessor::decodeProcess( short int *buf, uint32_t *bufSize, FILE *inWav
 {
 
     *bufSize = fread(buf, 2*sizeof(short int), BUFSIZE, inWavFile);
-//    printf("read bufsize is %d\n", *bufSize);
-//    infile
-
     return true;
 }
