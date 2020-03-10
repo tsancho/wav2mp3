@@ -17,7 +17,7 @@ before running check wav2mp3.cbp.mak (makefile) if paths to libraries files and 
 
 For Linux way is the same but file wav2mp3.cbp.mak.unix should be used instead. Also paths to files as well as files themselves for my ubuntu were like these:
 /usr/lib/x86_64-linux-gnu/libmp3lame.a 
-/usr/lib/x86_64-linux-gnu/libthreads.so
+/usr/lib/x86_64-linux-gnu/libthread.so
 
 ***
 notes: 
