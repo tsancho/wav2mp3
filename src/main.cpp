@@ -81,7 +81,7 @@ void  *fileConverter::runConverter(void *arg)
         string mp3FileName =wavFileName +".mp3";
         int mp3bufsz = 0;
         uint32_t readBufSize = 0;
-        FILE *mp3 = fopen(mp3FileName.c_str(), "wb");  //output
+        FILE *mp3 = fopen(mp3FileName.c_str(), "wb");
         if(wavPrc.initDecoder(&lame, wav, &mp3bufsz))
         {
             cout << "file conversion aborted: " << mp3FileName.c_str() << endl;
@@ -205,6 +205,8 @@ int main(int argc, char *argv[])
         return 3;
     }
     cout << ' ' << files1.size()<< "\n";
+    if(files1.size() < threadNumber)
+        threadNumber = files1.size();
     int rc;
     vector<fileConverter*> threads;
     wrapStruct_t wrapStruct;
